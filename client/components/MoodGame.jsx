@@ -18,17 +18,17 @@ const MoodGame = () => {
   const handleEightSecondMouseChange = (e) => {
     setEightSecondMouseChange(true);
   };
-
+  //   className={isEnterMouse ? 'MouseEnterClass' : ''}
+  //   onClick={() => handleInitialMouseClick(true)}
+  //   ondrag={() => handleFourSecondMouseChange(true)}
+  //   onFocus={() => handleSevenSecondMouseChange(true)}
+  //   onDrop={() => handleEightSecondMouseChange(true)}
+  // >
   return (
-    <div
-      className={isEnterMouse ? 'MouseEnterClass' : ''}
-      onClick={() => handleInitialMouseClick(true)}
-      ondrag={() => handleFourSecondMouseChange(true)}
-      onFocus={() => handleSevenSecondMouseChange(true)}
-      onDrop={() => handleEightSecondMouseChange(true)}
-    >
-
-      This is where mood game will eventually go!
+    <div className="wof-component container">
+      <h1 className="text-primary">
+        This is where mood game will eventually go!
+      </h1>
     </div>
   );
 };
