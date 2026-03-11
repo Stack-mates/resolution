@@ -36,6 +36,9 @@ const MoodGame = () => {
       </div>
     );
   };
+  const Bubble = () => {
+    return <div style={{"font-size": "25vh"}}>🫧</div>;
+  };
 
   return (
     <div className="wof-component container" style={{ alignContent: 'center' }}>
@@ -52,6 +55,7 @@ const MoodGame = () => {
         }}
       >
         Gamebox
+        <Bubble/>
       </div>
       <GameInstructions />
       <button> Start the Game </button>
