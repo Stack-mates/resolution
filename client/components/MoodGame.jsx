@@ -16,11 +16,29 @@ const MoodGame = () => {
       The bubble will pop and your score will go up for each successful cycle.
       When you complete 5 cycles, you are calm. Have sparkles.`;
 
+  const Typewriter = ({ text, delay, infinite }) => {
+    const [currentText, setCurrentText] = useState('');
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    useEffect(() => {
+      let timeout;
+      if (currentIndex <= text.length) {
+        timeout = setTimeout(() => {
+          setCurrentText((prevText) => prevText + text[currentIndex]);
+          setCurrentIndex((prevIndex) => prevIndex + 1);
+        }, delay);
+      } else if (infinite) {
+        setCurrentIndex(0);
+        setCurrentText('');
+      }
+      return () => clearTimeout(timeout);
+    }, [currentIndex, delay, infinite, text]);
+    return <span>{currentText}</span>;
+  };
   const Draggable = () => {
     const { ref } = useDraggable({
       id: 'draggable',
     });
-
     return <button ref={ref}>Draggable</button>;
   };
 
@@ -36,66 +54,29 @@ const MoodGame = () => {
     );
   };
 
-  const Typewriter = ({ text, delay, infinite }) => {
-    const [currentText, setCurrentText] = useState('');
-    const [currentIndex, setCurrentIndex] = useState(0);
-
-    useEffect(() => {
-      let timeout;
-
-      if (currentIndex <= text.length) {
-        timeout = setTimeout(() => {
-          setCurrentText((prevText) => prevText + text[currentIndex]);
-          setCurrentIndex((prevIndex) => prevIndex + 1);
-        }, delay);
-      } else if (infinite) {
-        setCurrentIndex(0);
-        setCurrentText('');
-      }
-
-      return () => clearTimeout(timeout);
-    }, [currentIndex, delay, infinite, text]);
-
-    return <span>{currentText}</span>;
-  };
-
-  //   return (
-  //     <div>
-  //       <div>A bubble will appear when you start the game.</div>
-  //       <div> Breath in! Hold the bubble for 4 seconds while inhaling</div>
-  //       <div> Hold your Breath! Tap the bubble and Hold for 7 seconds</div>
-  //       <div> Exhale! Tap the Bubble and Hold for 8 seconds.</div>
-  //       <div> Get the timing correct and the bubble will pop!</div>
-  //     </div>
-  //   );
-  // };
-
-  const Bubble = () => {
-    return (
-      <div
-        style={{
-          height: '25%',
-          width: '25%',
-          borderRadius: '50%',
-          backgroundColor: ' #7fa99b ',
-        }}
-      ></div>
-    );
-  };
-
   const GameBox = () => {
+    const targets = ['A', 'B', 'C'];
+    const [target, setTarget] = useState();
+    const draggable = <Draggable id="draggable">Drag me</Draggable>;
+
     return (
-      <div
-        className="mood-game-box"
-        style={{
-          height: '50vh',
-          width: '50vh',
-          alignContent: 'center',
-          backgroundColor: '#DEC37a',
+      <DragDropProvider
+        onDragEnd={(event) => {
+          if (event.canceled) {
+            return;
+          }
+
+          setTarget(event.operation.target?.id);
         }}
       >
-        <Bubble />
-      </div>
+        {!target ? draggable : null}
+
+        {targets.map((id) => (
+          <Droppable key={id} id={id}>
+            {target === id ? draggable : `Droppable ${id}`}
+          </Droppable>
+        ))}
+      </DragDropProvider>
     );
   };
 
@@ -105,10 +86,7 @@ const MoodGame = () => {
         Angry? Calm down with 4-7-8 breathing bubbles!!
       </h1>
       <GameBox />
-      <Typewriter
-        text={instructions}
-        delay={100}
-      />
+      <Typewriter text={instructions} delay={100} />
       <button> Start the Game </button>
     </div>
   );
@@ -134,3 +112,86 @@ export default MoodGame;
 //   onFocus={() => handleSevenSecondBubbleChange(true)}
 //   onDrop={() => handleEightSecondBubbleChange(true)}
 // >
+// const Bubble = () => {
+//   const { ref } = useDraggable({
+//     id: 'bubble',
+//   });
+//   return (
+//     <button
+//       ref={ref}
+//       style={{
+//         height: '25%',
+//         width: '25%',
+//         borderRadius: '50%',
+//         backgroundColor: ' #7fa99b ',
+//       }}
+//     ></button>
+//   );
+// };
+
+// const BubbleBox = ({ id, children }) => {
+//   const { ref } = useDroppable({
+//     id,
+//   });
+//   return (
+//     <div ref={ref} style={{ width: 300, height: 300 }}>
+//       {children}
+//     </div>
+//   );
+// };
+
+// const GameBox = () => {
+//   const targets = ['A', 'B', 'C'];
+//   const [target, setTarget] = useState();
+
+//   return (
+//     <DragDropProvider
+//       onDragEnd={(event) => {
+//         if (event.canceled) {
+//           return;
+//         }
+//         setTarget(event.operation.target?.id);
+//       }}
+//     >
+//       {!target ? bubble : null}
+
+//       {targets.map((id) => (
+//         <BubbleBox key={id} id={id}>
+//           {target === id ? bubble : `BubbleBox ${id}`}
+//         </BubbleBox>
+//       ))}
+//     </DragDropProvider>
+//   );
+// return (
+//   <div
+//     className="mood-game-box"
+//     style={{
+//       height: '50vh',
+//       width: '50vh',
+//       alignContent: 'center',
+//       backgroundColor: '#DEC37a',
+//     }}
+//   >
+//     <Bubble ref={ref} />
+//   </div>
+// );
+// };
+//   const bubble = () => {
+//   const { ref } = usebubble({
+//     id: 'bubble',
+//   });
+
+//   return <button ref={ref}>bubble</button>;
+// };
+
+// const Droppable = ({ id, children }) => {
+//   const { ref } = useDroppable({
+//     id,
+//   });
+
+//   return (
+//     <div ref={ref} style={{ width: 300, height: 300 }}>
+//       {children}
+//     </div>
+//   );
+// };
