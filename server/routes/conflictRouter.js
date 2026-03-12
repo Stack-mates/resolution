@@ -2,6 +2,7 @@ const express = require('express');
 const conflictRouter = express.Router();
 const { OverviewConflicts } = require('../database/index.js');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { systemInstruction, buildJudgePrompt } = require('../api/systemprompt.js');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -15,24 +16,10 @@ conflictRouter.post('/judge', async (req, res) => {
   try {
     const model = genAI.getGenerativeModel({ 
       model: "gemini-3-flash-preview",
-      systemInstruction: "You are an impartial, highly analytical judge. Your goal is to review two conflicting arguments and render a clear verdict. You must decide on a winner (or call it a tie if absolutely necessary) and provide deep reasoning based on logic and ethics. Return your response ONLY as a JSON object with the following structure: { 'winner': string, 'reasoning': string, 'confidenceScore': number (1-10) }",
+      systemInstruction: systemInstruction,
     });
 
-    const prompt = `
-      JUDICIAL CASE REVIEW REQUEST:
-      
-      SIDE A ARGUMENT:
-      """
-      ${promptA}
-      """
-      
-      SIDE B ARGUMENT:
-      """
-      ${promptB}
-      """
-      
-      Please analyze both perspectives and render your official verdict in the specified JSON format.
-    `;
+    const prompt = buildJudgePrompt(promptA, promptB);
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
