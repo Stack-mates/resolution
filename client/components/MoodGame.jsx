@@ -9,7 +9,9 @@ import {
 import { RestrictToElement, RestrictToWindow } from '@dnd-kit/dom/modifiers';
 import { RestrictToVerticalAxis } from '@dnd-kit/abstract/modifiers';
 import { PointerSensor, KeyboardSensor } from '@dnd-kit/dom';
-import { tsParticles } from "@tsparticles/engine";
+import { tsParticles } from '@tsparticles/engine';
+
+import { useDrag } from 'react-dnd'
 
 const MoodGame = () => {
   const [initalBubbleClick, setInitialBubbleClick] = useState(false);
@@ -25,6 +27,35 @@ const MoodGame = () => {
       As you exhale, drag the bubble to the box and let go on 8 seconds.
       The bubble will pop and your score will go up for each successful cycle.
       When you complete 5 cycles, you are calm. Have sparkles.`,
+  };
+
+  const Bubble = () => {
+    return (
+      <button className='bubble'
+        style={{
+          height: '25%',
+          width: '25%',
+          borderRadius: '50%',
+          backgroundColor: ' #7fa99b ',
+        }}
+      ></button>
+    );
+  };
+
+  const GameBoard = () => {
+    return (
+      <div
+        className="mood-game-board"
+        style={{
+          height: '100vw',
+          width: '100vw',
+          alignContent: 'center',
+          backgroundColor: '#DEC37a',
+        }}
+      >
+        <Bubble />
+      </div>
+    );
   };
 
   const Typewriter = ({ text, delay, infinite }) => {
@@ -47,9 +78,6 @@ const MoodGame = () => {
     return <span>{currentText}</span>;
   };
 
-
-
-  
   const Draggable = () => {
     const { ref } = useDraggable({
       id: 'draggable',
