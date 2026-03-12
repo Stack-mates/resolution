@@ -42,31 +42,12 @@ Want to add:
 
 # Developers
 
-**DOT ENV FILE**  
-Create a dot env file and with the following variables:
-
-```
-NODE_ENV=development
-HOST=http://127.0.0.1:4000
-GOOGLE_CLIENT_ID=(your own client ID)
-GOOGLE_CLIENT_SECRET=(your own client secret)
-MEDIASTACK_API_KEY=(your key from mediaStack)
-STIPOP_API_KEY=(your stipop api key)
-STIPOP_USER_ID=(your user ID)
-```
-
-Tip-- Some may need to add quotes to their variable definitions; ex: `NODE_ENV="development"`
-For deployment, HOST will be the instance address and not 127.0.0.1
-
 **STARTUP**
-
-- Must use Node version 18.16.1
+- Ensure mysql is installed on your local machine and that the root user has no password
+    - If the root user does have a password, it can be placed in the connection string in /server/database/index.js
 - Create the dot env file
 - Install dependencies: `npm i`
-- Start a mySQL server: `mysql.server start (mac)` `sudo service mysql start (WSL)`
-- Connect to mySQL shell: `mysql -u root (mac, WSL)`
-- Build the webpack: `npm run build:dev`
-- Start the server: `npm start`
+- Build the webpack and start the server: `npm run dev`
 - Seed the database: `npm run seed`
 
 **KNOWN BUGS**
