@@ -2,7 +2,7 @@ const express = require('express');
 const conflictRouter = express.Router();
 const { OverviewConflicts } = require('../database/index.js');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { systemInstruction, buildJudgePrompt } = require('../api/systemprompt.js');
+const { systemInstruction, buildJudgePrompt } = require('../api/prompts/systemprompt.js');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -16,6 +16,11 @@ conflictRouter.post('/judge', async (req, res) => {
   try {
     const model = genAI.getGenerativeModel({ 
       model: "gemini-3-flash-preview",
+      tools: [
+        {
+          googleSearch: {},
+        },
+      ],
       systemInstruction: systemInstruction,
     });
 
