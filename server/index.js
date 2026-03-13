@@ -92,14 +92,25 @@ io.sockets.on('connection', (socket) => {
 
     if (numClients === 0) {
       socket.join(data);
+      socket.emit('assigned_side', 'A');
     } else if (numClients === 1) {
       socket.join(data);
-      // 2nd player has entered. Ready for game
+      socket.emit('assigned_side', 'B');
       socket.to(data).emit('ready', 'READY');
-    } else { // max two clients
+    } else {
       socket.emit('full', 'FULL');
     }
 
+  });
+
+  socket.on('submit_argument', (data) => {
+    // data: { side, argument, room }
+    socket.to(data.room).emit('receive_argument', data);
+  });
+
+  socket.on('broadcast_verdict', (data) => {
+    // data: { verdict, room }
+    socket.to(data.room).emit('receive_verdict', data.verdict);
   });
   // tell 1st player, 2nd player has entered
   socket.on('other_ready', (data) => {

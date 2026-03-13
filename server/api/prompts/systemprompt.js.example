@@ -31,7 +31,7 @@ const buildJudgePrompt = (promptA, promptB) => {
     ${promptB}
     """
     
-    Please analyze both perspectives and render your official verdict based on the provided logic and the information you are able to retrieve from your tool calls.
+    Please analyze both perspectives and render your official verdict based on the provided logic.
   `;
 };
 
