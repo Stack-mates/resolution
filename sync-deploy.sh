@@ -6,7 +6,7 @@ REMOTE_USER="ubuntu"
 
 REMOTE_HOST="ec2-98-92-152-246.compute-1.amazonaws.com"
 
-REMOTE_DIR="~/FavBytes"
+REMOTE_DIR="~/resolution"
 
 echo "--- Local Build & Sync Deployment ---"
 echo "Building locally..."
@@ -22,6 +22,6 @@ rsync -avz --progress \
 
 echo "Restarting application on server..."
 
-ssh -i "$KEY_PATH" "$REMOTE_USER@$REMOTE_HOST" "export PATH=\$PATH:/home/ubuntu/.nvm/versions/node/v20.20.1/bin && cd $REMOTE_DIR && npm install && pm2 restart ecosystem.config.js"
+ssh -i "$KEY_PATH" "$REMOTE_USER@$REMOTE_HOST" "export PATH=\$PATH:/home/ubuntu/.nvm/versions/node/v22.22.1/bin && cd $REMOTE_DIR && npm install && pm2 restart ecosystem.config.js"
 
 echo "--- Deployment Complete ---"
