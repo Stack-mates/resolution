@@ -4,7 +4,9 @@ import {
   restrictToVerticalAxis,
   restrictToParentElement,
 } from '@dnd-kit/modifiers';
+
 import { tsParticles } from '@tsparticles/engine';
+import { loadFull } from 'tsparticles';
 
 const instructions = {
   text: `Start the game and a bubble will appear.
@@ -90,11 +92,32 @@ const Droppable = ({ id, children }) => {
   );
 };
 
+const triggerParticles = async () => {
+  await loadFull(tsParticles);
+  await tsParticles.load({
+    id: 'tsparticles',
+    options: {
+      fullScreen: { enable: true, zIndex: 999 },
+      particles: {
+        number: { value: 100 },
+        color: { value: ['#ff5733', '#0d6efd', '#b6118d', '#a7c3ee'] },
+        shape: { type: 'circle' },
+        opacity: { value: 0.8 },
+        size: { value: { min: 5, max: 15 } },
+        move: {
+          enable: true,
+          speed: 6,
+          direction: 'none',
+          outModes: 'out',
+        },
+        life: { duration: { value: 2 }, count: 1 },
+      },
+      emitters: { life: { count: 1, duration: 0.3 } },
+    },
+  });
+};
+
 const MoodGame = () => {
-  const [initalBubbleClick, setInitialBubbleClick] = useState(false);
-  const [fourSecondBubbleChange, setFourSecondBubbleChange] = useState(false);
-  const [sevenSecondBubbleChange, setSevenSecondBubbleChange] = useState(false);
-  const [eightSecondBubbleChange, setEightSecondBubbleChange] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [gameStarted, setGameStarted] = useState(false);
   const [bubbleColor, setBubbleColor] = useState('#ff5733');
@@ -134,7 +157,17 @@ const MoodGame = () => {
       <DndContext
         modifiers={[restrictToVerticalAxis]}
         onDragEnd={({ over, delta }) => {
-          if (over) {
+          if (over?.id === 'pop') {
+            setGameStarted(false);
+            triggerParticles();
+            timeReference.current = 0;
+            setTimer(0);
+            setPosition({ x: 0, y: 0 });
+            setTimeout(() => {
+              setGameStarted(true);
+              timeBubble();
+            }, 3000);
+          } else if (over) {
             setPosition((prev) => ({
               x: 0,
               y: prev.y + delta.y,
