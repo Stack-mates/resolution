@@ -1,0 +1,35 @@
+KEY_PATH="PATH_TO_YOUR_KEY.pem"
+
+//name of user on remote machine
+REMOTE_USER="ubuntu"
+
+//connection string for remote host (DNS for AC2 instances)
+REMOTE_HOST="your_connect_dns.amazonaws.com"
+
+//directory on remote host you want to update
+REMOTE_DIR="~/YOUR_REPO_DIRECTORY"
+
+//echo creates console output to update user of status
+echo "--- Local Build & Sync Deployment ---"
+echo "Building locally..."
+
+//javascript commands can be run the same as they are in the terminal
+npm run build
+echo "Syncing files to server..."
+
+//rsync is the function that runs the build on the local machine since 
+//the remote server has very little hardware overhead
+rsync -avz --progress \
+    -e "ssh -i $KEY_PATH" \
+    --exclude 'node_modules' \
+    --exclude '.git' \
+    --exclude '.env' \
+    ./ "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/"
+
+echo "Restarting application on server..."
+
+//this is the command that connects to the remote server and updates the 
+//built files from the local server
+ssh -i "$KEY_PATH" "$REMOTE_USER@$REMOTE_HOST" "export PATH=\$PATH:/home/ubuntu/.nvm/versions/node/v20.20.1/bin && cd $REMOTE_DIR && npm install && pm2 restart ecosystem.config.js"
+
+echo "--- Deployment Complete ---"
