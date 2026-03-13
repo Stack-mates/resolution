@@ -343,9 +343,9 @@ textarea {
 .drop {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  justify-content: center;
   height: 60vh;
-  width: 100%;
+  width: 50%;
 }
 
 .droppable {
@@ -366,25 +366,25 @@ textarea {
   height: 100%;
   width: 100%;
   display: flex;
-  justify-content: Space around;
+  justify-content: center;
 
 }
 .drop-inhale {
-    display: flex;
+  display: flex;
   flex-direction: column;
   align-items: space-around;
   height: 100%;
   width: 100%;
 }
 .drop-hold {
-    display: flex;
+  display: flex;
   flex-direction: column;
   align-items: space-around;
   height: 100%;
   width: 100%;
 }
 .drop-exhale {
-    display: flex;
+  display: flex;
   flex-direction: column;
   align-items: space-around;
   height: 100%;
@@ -392,12 +392,14 @@ textarea {
 }
 
 .drop-pop {
-    display: flex;
+  display: flex;
   flex-direction: column;
   align-items: space-around;
   height: 100%;
   width: 100%;
 }
 
-.inhale {
+.scoreboard {
+  display: flex;
+  width: 100%;
 }
