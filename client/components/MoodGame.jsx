@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   DndContext,
   useDraggable,
@@ -7,12 +7,10 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
-  rectIntersection,
 } from '@dnd-kit/core';
-
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { tsParticles } from '@tsparticles/engine';
 import { loadFull } from 'tsparticles';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Instructions
 const instructions = {
@@ -54,10 +52,10 @@ const triggerParticles = async () => {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Boxes
 
 const Boxes = {
-  inhale: { name: 'inhale', duration: 4, next: 'hold', color: '#0d6efd' },
-  hold: { name: 'hold', duration: 7, next: 'exhale', color: '#a7c3ee' },
-  exhale: { name: 'exhale', duration: 8, next: 'pop', color: '#0d1725' },
-  pop: { name: 'pop', duration: null, next: null, color: '#b6118d' },
+  inhale: { name: 'inhale', duration: 4, next: 'hold', color: '#8A3E73' },
+  hold: { name: 'hold', duration: 7, next: 'exhale', color: '#FF282A' },
+  exhale: { name: 'exhale', duration: 8, next: 'pop', color: '#90CF44' },
+  pop: { name: 'pop', duration: null, next: null, color: '#59B512' },
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Instruction Typing
@@ -94,24 +92,24 @@ const Bubble = ({ bubbleColor }) => {
       {...listeners}
       {...attributes}
       style={{
-        width: '10vh',
-        height: '10vh',
+        width: '60px',
+        height: '60px',
         borderRadius: '50%',
-        position: 'absolute',
-        top: 0,
-        left: 'calc(50% - 5vh)',
-        zIndex: 10,
-        transform: transform
-          ? `translate3d(0px, ${transform.y}px, 0)`
-          : undefined,
+        display: 'block',
+        margin: '0 auto',
         backgroundColor: bubbleColor,
         border: 'none',
         cursor: 'grab',
         transition: 'background-color 0.5s ease',
+        transform: transform
+          ? `translate(${transform.x}px, ${transform.y}px)`
+          : undefined,
+        touchAction: 'none',
       }}
     />
   );
 };
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DropBox
 
 const DropBox = ({ id, label, isActive }) => {
@@ -121,14 +119,13 @@ const DropBox = ({ id, label, isActive }) => {
     <div
       ref={setNodeRef}
       style={{
-        padding: '2rem',
+        padding: '1rem',
         margin: '0.5rem',
         borderRadius: '8px',
-        border: `2px dashed ${isActive ? '#0d6efd' : '#ccc'}`,
-        backgroundColor: isOver ? 'rgba(13, 110, 253, 0.1)' : 'transparent',
+        border: `2px ${isActive ? '#924B9C' : '#FA4490'}`,
+        backgroundColor: isOver ? ' #6CE4E7' : 'transparent',
         textAlign: 'center',
         fontWeight: isActive ? 'bold' : 'normal',
-        position: 'relative',
         minHeight: '80px',
       }}
     >
@@ -136,13 +133,12 @@ const DropBox = ({ id, label, isActive }) => {
     </div>
   );
 };
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~GameBox
 const GameBox = ({ gameStarted, bubbleColor, cycleKey, currentBox }) => (
   <div style={{ maxWidth: '300px', margin: '0 auto' }}>
     {gameStarted && (
-      <div
-        style={{ position: 'relative', height: '10vh', marginBottom: '1rem' }}
-      >
+      <div style={{ textAlign: 'center', padding: '1rem' }}>
         <Bubble bubbleColor={bubbleColor} key={cycleKey} />
       </div>
     )}
@@ -182,39 +178,51 @@ const MoodGame = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [box, setBox] = useState('inhale');
   const [boxTimer, setBoxTimer] = useState(0);
-  const [activeZone, setActiveZone] = useState(null);
+  const [hoverZone, setHoverZone] = useState(null);
   const [cycleKey, setCycleKey] = useState(0);
   const [cycles, setCycles] = useState(0);
   const intervalRef = useRef(null);
-  //timer will need to use 0-4 for inhale, 5-13 for hold, 14-22 exhale, and 23 for pop.
 
-  const bubbleColor = Boxes[box]?.color ?? `#0d6efd`;
+  const bubbleColor = Boxes[box]?.color ?? '#FCCED4';
 
-  const stopInterval = () => {
+  const stopInterval = useCallback(() => {
     clearInterval(intervalRef.current);
     intervalRef.current = null;
-  };
+  }, []);
 
-  const startInterval = () => {
+  const startInterval = useCallback(() => {
     stopInterval();
     intervalRef.current = setInterval(() => {
       setBoxTimer((t) => t + 1);
     }, 1000);
-  };
+  }, [stopInterval]);
+
+  const handleFail = useCallback(() => {
+    stopInterval();
+    setCycleKey((k) => k + 1);
+    setBox('inhale');
+    setBoxTimer(0);
+    setHoverZone(null);
+    setCycles(0);
+  }, [stopInterval]);
 
   useEffect(() => {
     const config = Boxes[box];
     if (!config?.duration) {
       return;
     }
-    if (activeZone === config.name) {
+
+    if (hoverZone === config.name) {
       startInterval();
+    } else if (hoverZone !== null) {
+      handleFail();
     } else {
       stopInterval();
       setBoxTimer(0);
     }
+
     return stopInterval;
-  }, [box, activeZone]);
+  }, [box, hoverZone]);
 
   useEffect(() => {
     const config = Boxes[box];
@@ -224,18 +232,20 @@ const MoodGame = () => {
     if (boxTimer >= config.duration) {
       stopInterval();
       setBoxTimer(0);
+      setHoverZone(null);
       setBox(config.next);
     }
   }, [boxTimer, box]);
 
-  const handlePop = () => {
+  const handlePop = useCallback(() => {
     if (box !== 'pop') {
+      handleFail();
       return;
     }
     stopInterval();
     triggerParticles();
     setCycleKey((k) => k + 1);
-    setActiveZone(null);
+    setHoverZone(null);
 
     const nextCycles = cycles + 1;
     if (nextCycles >= 5) {
@@ -246,26 +256,29 @@ const MoodGame = () => {
         setBoxTimer(0);
       }, 3000);
     } else {
-      setCycles(0);
+      setCycles(nextCycles);
       setTimeout(() => {
         setBox('inhale');
         setBoxTimer(0);
       }, 3000);
     }
-  };
+  }, [box, cycles, stopInterval, handleFail]);
 
   const handleStartGame = () => {
     setGameStarted(true);
     setBox('inhale');
     setBoxTimer(0);
-    setActiveZone(null);
+    setCycles(0);
+    setHoverZone(null);
   };
+
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, {
       activationConstraint: { delay: 50, tolerance: 5 },
     }),
   );
+
   return (
     <div
       className="wof-component container"
@@ -284,13 +297,12 @@ const MoodGame = () => {
       <DndContext
         sensors={sensors}
         modifiers={[restrictToVerticalAxis]}
-        collisionDetection={rectIntersection}
-        onDragStart={() => setActiveZone(null)}
-        onDragOver={({ over }) => setActiveZone(over?.id ?? null)}
+        onDragOver={({ over }) => setHoverZone(over?.id ?? null)}
         onDragEnd={({ over }) => {
-          setActiveZone(over?.id ?? null);
           if (over?.id === 'pop') {
             handlePop();
+          } else {
+            handleFail();
           }
         }}
       >
@@ -311,6 +323,7 @@ const MoodGame = () => {
     </div>
   );
 };
+
 export default MoodGame;
 
 // const timeReference = useRef(0);
@@ -359,7 +372,7 @@ export default MoodGame;
 //       Angry? Calm down with 4-7-8 breathing bubbles!!
 //     </h1>
 //     <DndContext
-//       //modifiers={[restrictToVerticalAxis]}
+
 //       onDragEnd={({ over, delta }) => {
 //         console.log('drag ended, over:', over?.id, 'delta:', delta);
 //         if (over?.id === 'pop') {
