@@ -43,43 +43,13 @@ const triggerParticles = async () => {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Boxes
 
 const Boxes = {
-  inhale: {name: 'inhale', duration: 4, next: 'hold', color: '#0d6efd'},
-  hold: {name: 'hold', duration: 7, next: 'exhale', color: '#a7c3ee'},
-  exhale: {name: 'exhale', duration: 8, next: 'pop', color: '#0d6efd'},
-  pop: {name: 'pop', duration: null, next: null, color: '#0d6efd'},
+  inhale: { name: 'inhale', duration: 4, next: 'hold', color: '#0d6efd' },
+  hold: { name: 'hold', duration: 7, next: 'exhale', color: '#a7c3ee' },
+  exhale: { name: 'exhale', duration: 8, next: 'pop', color: '#0d6efd' },
+  pop: { name: 'pop', duration: null, next: null, color: '#0d6efd' },
 };
 
-
-
-const GameBox = ({ position, gameStarted, bubbleColor }) => {
-  const [cycleKey, setCycleKey] = useState(0);
-  return (
-    <div className="drop-container">
-      <div className="drop" style={{ position: 'relative' }}>
-        <div className="drop-inhale" style={{ position: 'relative' }}>
-          {gameStarted && (
-            <Draggable
-              position={position}
-              bubbleColor={bubbleColor}
-              key={cycleKey}
-            />
-          )}
-          <Droppable id="inhale">Inhale</Droppable>
-        </div>
-        <div className="drop-hold" style={{ position: 'relative' }}>
-          <Droppable id="hold">Hold</Droppable>
-        </div>
-        <div className="drop-exhale" style={{ position: 'relative' }}>
-          <Droppable id="exhale">Exhale</Droppable>
-        </div>
-        <div className="drop-pop " style={{ position: 'relative' }}>
-          <Droppable id="pop">Pop</Droppable>
-        </div>
-      </div>
-    </div>
-  );
-};
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Instruction Typing
 const Typewriter = ({ text, delay, infinite }) => {
   const [currentText, setCurrentText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -100,37 +70,113 @@ const Typewriter = ({ text, delay, infinite }) => {
   return <span>{currentText}</span>;
 };
 
-const Draggable = ({ position, bubbleColor }) => {
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Bubble
+
+const Draggable = ({ bubbleColor }) => {
   const { setNodeRef, listeners, attributes, transform } = useDraggable({
     id: 'draggable',
   });
-  const style = {
-    className: 'bubble',
-    width: '10vh',
-    height: '10vh',
-    borderRadius: '50%',
-    position: 'absolute',
-    top: position.y,
-    left: 'calc(50% - 5vh)',
-    zIndex: 10,
-    transform: transform ? `translate3d(0px, ${transform.y}px, 0)` : undefined,
-    backgroundColor: bubbleColor,
-  };
+
   return (
-    <button ref={setNodeRef} {...listeners} {...attributes} style={style} />
+    <button
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      style={{
+        width: '10vh',
+        height: '10vh',
+        borderRadius: '50%',
+        position: 'absolute',
+        top: 0,
+        left: 'calc(50% - 5vh)',
+        zIndex: 10,
+        transform: transform
+          ? `translate3d(0px, ${transform.y}px, 0)`
+          : undefined,
+        backgroundColor: bubbleColor,
+        border: 'none',
+        cursor: 'grab',
+        transition: 'background-color 0.5s ease',
+      }}
+    />
   );
 };
 
-const Droppable = ({ id, children }) => {
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DropBox
+
+const DropBox = ({ id, label, isActive }) => {
   const { isOver, setNodeRef } = useDroppable({ id });
 
   return (
-    <div ref={setNodeRef} className={isOver ? 'droppable-active' : 'droppable'}>
-      {children}
+    <div
+      ref={setNodeRef}
+      style={{
+        padding: '2rem',
+        margin: '0.5rem',
+        borderRadius: '8px',
+        border: `2px dashed ${isActive ? '#0d6efd' : '#ccc'}`,
+        backgroundColor: isOver ? 'rgba(13, 110, 253, 0.1)' : 'transparent',
+        textAlign: 'center',
+        fontWeight: isActive ? 'bold' : 'normal',
+        position: 'relative',
+        minHeight: '80px',
+      }}
+    >
+      {label}
     </div>
   );
 };
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~GameBox
+const GameBox = ({ gameStarted, bubbleColor, cycleKey }) => (
+  <div style={{ position: 'relative', maxWidth: '100%', margin: '0 auto' }}>
+    <DropBox
+      id="inhale"
+      label="inhale4s"
+      isActive={currentPhase === 'inhale'}
+    />
+    <DropBox 
+      id="hold" 
+      label="hold7s" 
+      isActive={currentPhase === 'hold'} 
+    />
 
+    <DropBox
+      id="exhale"
+      label="exhale8s"
+      isActive={currentPhase === 'exhale'}
+    />
+    <DropBox 
+      id="pop" 
+      label="pop"
+      isActive={currentPhase === 'pop'} />
+    {gameStarted && <Bubble bubbleColor={bubbleColor} key={cycleKey} />}
+  </div>
+);
+// return (
+//   <div className="drop-container">
+//     <div className="drop" style={{ position: 'relative' }}>
+//       <div className="drop-inhale" style={{ position: 'relative' }}>
+//         {gameStarted && (
+//           <Draggable
+//             position={position}
+//             bubbleColor={bubbleColor}
+//             key={cycleKey}
+//           />
+//         )}
+//         <Droppable id="inhale">Inhale</Droppable>
+//       </div>
+//       <div className="drop-hold" style={{ position: 'relative' }}>
+//         <Droppable id="hold">Hold</Droppable>
+//       </div>
+//       <div className="drop-exhale" style={{ position: 'relative' }}>
+//         <Droppable id="exhale">Exhale</Droppable>
+//       </div>
+//       <div className="drop-pop " style={{ position: 'relative' }}>
+//         <Droppable id="pop">Pop</Droppable>
+//       </div>
+//     </div>
+//   </div>
+// );
 
 const MoodGame = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
