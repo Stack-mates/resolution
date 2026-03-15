@@ -1,8 +1,11 @@
 const express = require('express');
 const conflictRouter = express.Router();
 const { OverviewConflicts } = require('../database/index.js');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { systemInstruction, buildJudgePrompt } = require('../api/prompts/systemprompt.js');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const {
+  systemInstruction,
+  buildJudgePrompt,
+} = require('../api/systemprompt.js');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -10,12 +13,14 @@ conflictRouter.post('/judge', async (req, res) => {
   const { promptA, promptB } = req.body;
 
   if (!promptA || !promptB) {
-    return res.status(400).send({ error: "Both Side A and Side B arguments are required." });
+    return res
+      .status(400)
+      .send({ error: 'Both Side A and Side B arguments are required.' });
   }
 
   try {
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-3-flash-preview",
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-3-flash-preview',
       tools: [
         {
           googleSearch: {},
@@ -28,39 +33,47 @@ conflictRouter.post('/judge', async (req, res) => {
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text().replace(/```json|```/g, "").trim(); // Clean up potential markdown formatting
-    
+    const text = response
+      .text()
+      .replace(/```json|```/g, '')
+      .trim(); // Clean up potential markdown formatting
+
     res.status(200).send(JSON.parse(text));
   } catch (err) {
     console.error('Judge Error:', err);
-    res.status(500).send({ error: "The judge encountered a legal loophole. Please try again later." });
+    res
+      .status(500)
+      .send({
+        error:
+          'The judge encountered a legal loophole. Please try again later.',
+      });
   }
 });
 
 conflictRouter.get('/api/getAllConflicts', (req, res) => {
-    OverviewConflicts.findAll({})
+  OverviewConflicts.findAll({})
     .then((results) => {
-        res.status(200).send(results)
+      res.status(200).send(results);
     })
     .catch((err) => {
-        console.error(err)
-        res.sendStatus(500)
-    })
-})
+      console.error(err);
+      res.sendStatus(500);
+    });
+});
 
 conflictRouter.post('/api/createConflict', (req, res) => {
-    OverviewConflicts.create(req.body)
+  OverviewConflicts.create(req.body)
     .then((results) => {
-        res.sendStatus(200)
+      res.sendStatus(200);
     })
     .catch((err) => {
-        console.error(err)
-        res.sendStatus(500)
-    })
-})
+      console.error(err);
+      res.sendStatus(500);
+    });
+});
 
 conflictRouter.patch(`/api/updateStatus`, (req, res) => {
-    const { id, conflictStatus } = req.body;
+  const { id, conflictStatus } = req.body;
   OverviewConflicts.update({ conflictStatus }, { where: { id } })
     .then(() => {
       res.sendStatus(200);
@@ -68,21 +81,19 @@ conflictRouter.patch(`/api/updateStatus`, (req, res) => {
     .catch(() => {
       res.sendStatus(500);
     });
-    
-})
+});
 
 conflictRouter.delete('/api/deleteConflict/:id', (req, res) => {
-    const {id} = req.params
-    OverviewConflicts.destroy({
-        where: {id}
-    })
+  const { id } = req.params;
+  OverviewConflicts.destroy({
+    where: { id },
+  })
     .then(() => {
-        res.sendStatus(200)
-
+      res.sendStatus(200);
     })
     .catch(() => {
-        res.sendStatus(500)
-    })
-})
+      res.sendStatus(500);
+    });
+});
 
 module.exports = conflictRouter;
