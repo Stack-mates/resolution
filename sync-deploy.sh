@@ -4,7 +4,7 @@ KEY_PATH="/home/alex/Documents/classwork/BiteBytes.pem"
 
 REMOTE_USER="ubuntu"
 
-REMOTE_HOST="ec2-98-92-152-246.compute-1.amazonaws.com"
+REMOTE_HOST="ec2-44-192-21-30.compute-1.amazonaws.com"
 
 REMOTE_DIR="~/resolution"
 
