@@ -19,6 +19,8 @@ const SeeJudge = () => {
   const [verdict, setVerdict] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [personality, setPersonality] = useState('analytical');
+
 
   useEffect(() => {
     socket.on('assigned_side', (assignedSide) => {
@@ -81,7 +83,7 @@ const SeeJudge = () => {
     const promptB = side === 'B' ? myArgument : otherArgument;
 
     try {
-      const { data } = await axios.post('/conflict/judge', { promptA, promptB });
+      const { data } = await axios.post('/conflict/judge', { promptA, promptB, personality });
       setVerdict(data);
 
       socket.emit('broadcast_verdict', { verdict: data, room: JUDGE_ROOM });
@@ -104,7 +106,7 @@ const SeeJudge = () => {
     return (
       <div className="container mt-5">
         <Card className="p-4 shadow text-center">
-          <h2 className="mb-4">⚖️ Gemini Judge</h2>
+          <h2 className="mb-4" style={{ fontFamily: 'monospace', textShadow: '2px 2px 4px rgba(13, 110, 253, 0.4)' }}>⚖️ The Cyber-Gavel</h2>
           <Alert variant="warning">
             The Judge's Chambers are currently full. Please wait for the current session to end or try again later.
           </Alert>
@@ -116,7 +118,7 @@ const SeeJudge = () => {
   return (
     <div className="container mt-5">
       <Card className="p-4 shadow">
-        <h2 className="text-center mb-2">⚖️ Gemini Judge</h2>
+        <h2 className="text-center mb-2" style={{ fontFamily: 'monospace', textShadow: '2px 2px 4px rgba(13, 110, 253, 0.4)' }}>⚖️ The Cyber-Gavel</h2>
         <p className="text-center text-muted mb-4">
           Status: {ready ? 
             <span>Connected as <strong>Side {side}</strong></span> : 
@@ -172,6 +174,20 @@ const SeeJudge = () => {
               </div>
             </div>
 
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold">Judge's Personality</Form.Label>
+              <Form.Select 
+                value={personality} 
+                onChange={(e) => setPersonality(e.target.value)}
+                disabled={loading}
+              >
+                <option value="analytical">⚖️ Analytical</option>
+                <option value="strict">📏 Strict</option>
+                <option value="empathetic">❤️ Empathetic</option>
+                <option value="sarcastic">😏 Sarcastic</option>
+              </Form.Select>
+            </Form.Group>
+
             <div className="text-center mt-3">
               <Button
                 variant="dark"
@@ -182,7 +198,7 @@ const SeeJudge = () => {
               >
                 {loading ? (
                   <>
-                    <Spinner animation="border" size="sm" className="me-2" />
+                    <span className="gavel-animated me-2">🔨</span>
                     Deliberating...
                   </>
                 ) : (
