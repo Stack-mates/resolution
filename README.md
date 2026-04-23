@@ -40,6 +40,10 @@ Want to add:
 
 - Add functionality with bought stickers (from STIPOP API)
 
+**Resolution MoodGame** - This game will start when you press the start button and move the ball from the first inhale block when the timer moves from 3seconds to 4 seconds. Hold your breath for 7 seconds, and then move the ball at  6seconds to 7seconds. Slowly exhale for 8 seconds and move the ball to the pop zone at second 8. the ball will pop and you will need to do any additional cycles before the game ends after cycle 5.
+
+**Judge** - Bring an argument to an impartial third party for rulings based on the strength of each side's argument.
+
 # Developers
 
 **STARTUP**
@@ -82,6 +86,10 @@ Want to add:
 - React-Toastify
 - React-Canvas
 - React-Bootstrap
+- dnd-kit
+- TsParticles
+- Google Gemini API
+- Google oauth
 
 # Contributors
 
@@ -98,6 +106,8 @@ Thanks to all the following people for contributing to this project:
 [@PeytonOwen](https://github.com/peytono)
 [@CamronCaldwell](https://github.com/ccaldwell11)
 [@KylanPatton](https://github.com/kycodee)
+[@Bernie](https://github.com/akbyrner)
+[@HopeyClarkey](https://github.com/HopeyClarkey)
 
 # Contact Info
 

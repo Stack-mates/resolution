@@ -3,14 +3,14 @@ const conflictRouter = express.Router();
 const { OverviewConflicts } = require('../database/index.js');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const {
-  systemInstruction,
+  getSystemInstruction,
   buildJudgePrompt,
-} = require('../api/systemprompt.js');
+} = require('../api/prompts/systemprompt.js');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 conflictRouter.post('/judge', async (req, res) => {
-  const { promptA, promptB } = req.body;
+  const { promptA, promptB, personality } = req.body;
 
   if (!promptA || !promptB) {
     return res
@@ -26,7 +26,7 @@ conflictRouter.post('/judge', async (req, res) => {
           googleSearch: {},
         },
       ],
-      systemInstruction: systemInstruction,
+      systemInstruction: getSystemInstruction(personality),
     });
 
     const prompt = buildJudgePrompt(promptA, promptB);
